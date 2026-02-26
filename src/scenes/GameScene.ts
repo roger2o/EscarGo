@@ -5,6 +5,7 @@ import { InputHandler } from '../core/InputHandler';
 import { gardenLevels } from '../levels/garden';
 import { Theme, getThemeForWorld } from '../core/Theme';
 import { solve, SolveResult } from '../core/Solver';
+import { getProgress, saveProgress } from '../core/Progress';
 
 /** Milliseconds between each auto-move tick */
 const TICK_MS = 350;
@@ -73,6 +74,8 @@ export class GameScene extends Phaser.Scene {
       () => {},
       () => this.loadLevel(this.currentLevel),
     );
+    const progress = getProgress();
+    this.currentLevel = Math.min(progress.currentLevel, gardenLevels.length - 1);
     this.applyTheme();
     this.loadLevel(this.currentLevel);
     this.scale.on('resize', () => this.redraw());
@@ -243,6 +246,8 @@ export class GameScene extends Phaser.Scene {
     this.solveResult = solve(this.levelConfig);
 
     const stars = this.getStars();
+    saveProgress(this.currentLevel, stars);
+
     let msg = `Level Complete!\n${this.makeStarDisplay(stars)}\nMoves: ${this.moveCount}`;
     if (this.solveResult.found) {
       msg += `\nOptimal: ${this.solveResult.optimalMoveCount} moves`;
